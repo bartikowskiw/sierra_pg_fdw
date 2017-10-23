@@ -1,7 +1,7 @@
 # Clone Sierra's DB: Foreign Data Wrapper (FDW) for the Sierra ILS database
 
-Sets up a copy of the ```sierra_view``` views. Once set up all queries that
-are working on Sierra's DB server should work on your local copy too.
+Sets up a copy of the ```sierra_view``` views. Once set up all queries
+working on Sierra's DB server should work on your local copy too.
 No changes to the SQL are needed.
 
 The queries here make a copy of data in some tables. This can help to increase
@@ -21,11 +21,15 @@ This will
 * create a schema ```sierra_view_fdw``` that stores the original FDW views
 * create a schema ```sierra_view``` that holds the views / mirrored tables of the views in ```sierra_view_fdw```
 
+## Get (and update) the data
+
 Then the contents of the mirrored tables need to be pulled.
 ```update.sql``` will take care of that. The first run will take quite a
 while because all data inside the tables needs to be moved. Once this is
 done the updates are based on the information in the record_metadata
 table. So just records that have been changed get updated.
+
+The queries ignore deleted records for now.
 
 ## Add and remove tables
 
