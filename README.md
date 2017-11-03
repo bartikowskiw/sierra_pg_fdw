@@ -35,13 +35,13 @@ The queries ignore deleted records for now.
 
 You replace a view with a copy by executing i.e.
 
-```
+```sql
 SELECT fdw.add_table( 'bib_record', 'id', 'b' );
 ```
 
 Removing the table and setting up a view by i.e.
 
-```
+```sql
 SELECT fdw.add_view( 'bib_record' );
 ```
 
