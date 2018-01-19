@@ -312,9 +312,10 @@ RETURNS void AS $$
 DECLARE
     sql text;
     max_id integer DEFAULT 0;
+    affected integer DEFAULT 0;
 BEGIN
 
-    RAISE NOTICE 'Getting record ids for records to update from % to %.', table_original, table_copy;
+    RAISE NOTICE 'Updating % with data from %.', table_original, table_copy;
 
     EXECUTE 'SELECT MAX( ' || quote_ident( id_field ) || ' ) FROM ' || table_copy INTO max_id;
     IF max_id IS NULL THEN max_id := 0; END IF;
@@ -331,5 +332,8 @@ BEGIN
     END IF;
 
     EXECUTE sql;
+    
+    GET DIAGNOSTICS affected = ROW_COUNT;
+    RAISE NOTICE '  Added % row(s).', affected;
 
 END; $$ LANGUAGE plpgsql;
