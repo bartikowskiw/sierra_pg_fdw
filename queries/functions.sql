@@ -13,7 +13,7 @@ CREATE OR REPLACE FUNCTION fdw.drop_meta_schema()
 RETURNS void AS $$
 BEGIN
 
-	DROP SCHEMA fdw CASCADE;
+    DROP SCHEMA fdw CASCADE;
 
 END; $$ LANGUAGE plpgsql;
 
@@ -22,12 +22,12 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.ftn(
-	table_name text,
-	schema_name text DEFAULT 'public'
+    table_name text,
+    schema_name text DEFAULT 'public'
 )
 RETURNS text AS $$
 BEGIN
-	RETURN quote_ident( schema_name ) || '.' || quote_ident( table_name );
+    RETURN quote_ident( schema_name ) || '.' || quote_ident( table_name );
 END; $$ LANGUAGE plpgsql;
 
 ---
@@ -35,14 +35,14 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.init(
-	username text,
-	password text,
-	host text,
-	db_name text DEFAULT 'iii',
-	port int DEFAULT 1032,
-	server_name text DEFAULT 'sierra_server',
-	local_schema_name text DEFAULT 'sierra_view_fdw',
-	remote_schema_name text DEFAULT 'sierra_view'
+    username text,
+    password text,
+    host text,
+    db_name text DEFAULT 'iii',
+    port int DEFAULT 1032,
+    server_name text DEFAULT 'sierra_server',
+    local_schema_name text DEFAULT 'sierra_view_fdw',
+    remote_schema_name text DEFAULT 'sierra_view'
 )
 RETURNS void AS $$
 BEGIN
@@ -50,20 +50,20 @@ BEGIN
     CREATE EXTENSION IF NOT EXISTS postgres_fdw;
 
     RAISE NOTICE 'Setting up "%" Foreign Data Wrapper for %@%:%/%. Local schema name: "%".',
-	server_name, username, host, port, db_name, local_schema_name;
+    server_name, username, host, port, db_name, local_schema_name;
 
     EXECUTE 'CREATE SERVER ' || quote_ident( server_name ) || '
       FOREIGN DATA WRAPPER postgres_fdw
       OPTIONS (
-	host ' || quote_literal( host ) || ',
-	dbname ' || quote_literal( db_name ) || ',
-	port ' || quote_literal( port ) || ')';
+    host ' || quote_literal( host ) || ',
+    dbname ' || quote_literal( db_name ) || ',
+    port ' || quote_literal( port ) || ')';
 
     EXECUTE 'CREATE USER MAPPING FOR CURRENT_USER
       SERVER sierra_server
       OPTIONS (
-	user ' || quote_literal( username) || ',
-	password ' || quote_literal( password ) || '
+    user ' || quote_literal( username) || ',
+    password ' || quote_literal( password ) || '
     )';
 
     EXECUTE 'CREATE SCHEMA ' || quote_ident( local_schema_name );
@@ -93,7 +93,7 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.drop_server(
-	server_name text DEFAULT 'sierra_server'
+    server_name text DEFAULT 'sierra_server'
 )
 RETURNS void AS $$
 BEGIN
@@ -109,9 +109,9 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.duplicate_table_structure(
-	table_original text,
-	table_copy text,
-	id_field text DEFAULT 'id'
+    table_original text,
+    table_copy text,
+    id_field text DEFAULT 'id'
 )
 RETURNS void AS $$
 BEGIN
@@ -132,8 +132,8 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.create_mirror_view(
-	table_from text,
-	table_to text
+    table_from text,
+    table_to text
 )
 RETURNS void AS $$
 BEGIN
@@ -149,10 +149,10 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.mirror_schema(
-	schema_from text DEFAULT 'sierra_view_fdw',
-	schema_to text DEFAULT 'sierra_view',
-    	server_name text DEFAULT 'sierra_server',
-	schema_original_name text DEFAULT 'sierra_view'
+    schema_from text DEFAULT 'sierra_view_fdw',
+    schema_to text DEFAULT 'sierra_view',
+        server_name text DEFAULT 'sierra_server',
+    schema_original_name text DEFAULT 'sierra_view'
 )
 RETURNS void AS $$
 BEGIN
@@ -176,11 +176,11 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.add_table(
-	table_name text, 
-	id_field text,
-	record_type_code text DEFAULT NULL,
-	schema_original text DEFAULT 'sierra_view_fdw',
-	schema_copy text DEFAULT 'sierra_view'
+    table_name text, 
+    id_field text,
+    record_type_code text DEFAULT NULL,
+    schema_original text DEFAULT 'sierra_view_fdw',
+    schema_copy text DEFAULT 'sierra_view'
 )
 RETURNS void AS $$
 BEGIN
@@ -188,19 +188,19 @@ BEGIN
     EXECUTE 'DELETE FROM fdw.updated_tables WHERE table_name = ' || quote_literal( table_name );
 
     IF record_type_code IS NULL THEN
-	EXECUTE 'INSERT INTO fdw.updated_tables ( table_name, id_field ) 
-		VALUES ( ' || quote_literal( table_name ) || ', ' || quote_literal( id_field ) || ' )';
+    EXECUTE 'INSERT INTO fdw.updated_tables ( table_name, id_field ) 
+        VALUES ( ' || quote_literal( table_name ) || ', ' || quote_literal( id_field ) || ' )';
     ELSE
-	    EXECUTE 'INSERT INTO fdw.updated_tables ( table_name, id_field, record_type_code ) 
-		VALUES ( ' || quote_literal( table_name ) || ', ' || quote_literal( id_field ) || ', ' || quote_literal( record_type_code ) || ' )';
+        EXECUTE 'INSERT INTO fdw.updated_tables ( table_name, id_field, record_type_code ) 
+        VALUES ( ' || quote_literal( table_name ) || ', ' || quote_literal( id_field ) || ', ' || quote_literal( record_type_code ) || ' )';
     END IF;
 
     
 
     EXECUTE 'SELECT fdw.duplicate_table_structure(
-	' || quote_literal( fdw.ftn( table_name, schema_original ) ) || ',
-	' || quote_literal( fdw.ftn( table_name, schema_copy ) ) || ',
-	' || quote_literal( id_field ) || '
+    ' || quote_literal( fdw.ftn( table_name, schema_original ) ) || ',
+    ' || quote_literal( fdw.ftn( table_name, schema_copy ) ) || ',
+    ' || quote_literal( id_field ) || '
     )';
 
 END; $$ LANGUAGE plpgsql;
@@ -210,9 +210,9 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.add_view(
-	table_name text, 
-	schema_from text DEFAULT 'sierra_view_fdw',
-	schema_to text DEFAULT 'sierra_view'
+    table_name text, 
+    schema_from text DEFAULT 'sierra_view_fdw',
+    schema_to text DEFAULT 'sierra_view'
 )
 RETURNS void AS $$
 BEGIN
@@ -220,7 +220,7 @@ BEGIN
     EXECUTE 'DROP TABLE IF EXISTS ' || fdw.ftn( table_name, schema_to );
     
     PERFORM fdw.create_mirror_view(
-	fdw.ftn( table_name, schema_from ),
+    fdw.ftn( table_name, schema_from ),
         fdw.ftn( table_name, schema_to )
     );
 
@@ -233,10 +233,10 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.get_updates(
-	table_original text DEFAULT 'sierra_view_fdw.record_metadata',
-	table_copy text DEFAULT 'sierra_view.record_metadata',
-	record_type_code char DEFAULT NULL,
-	record_limit int DEFAULT NULL
+    table_original text DEFAULT 'sierra_view_fdw.record_metadata',
+    table_copy text DEFAULT 'sierra_view.record_metadata',
+    record_type_code char DEFAULT NULL,
+    record_limit int DEFAULT NULL
 )
 RETURNS TABLE( id bigint ) AS $$
 DECLARE
@@ -273,24 +273,63 @@ END; $$ LANGUAGE plpgsql;
 ---
 
 CREATE OR REPLACE FUNCTION fdw.update_table(
-	table_original text,
-	table_copy text,
-	table_updates text DEFAULT 'fdw.updates',
-	id_field text DEFAULT 'id'
+    table_original text,
+    table_copy text,
+    table_updates text DEFAULT 'fdw.updates',
+    id_field text DEFAULT 'id'
 )
 RETURNS void AS $$
 BEGIN
 
-	RAISE NOTICE 'Coping updated records from "%" to "%".', table_original, table_copy;
+    RAISE NOTICE 'Coping updated records from "%" to "%".', table_original, table_copy;
 
-	EXECUTE
-	  'DELETE
-	    FROM ' || table_copy || ' AS r
-	    WHERE r.' || quote_ident( id_field ) || ' = ANY ( ARRAY( SELECT id FROM ' || table_updates || ' ) )';
+    EXECUTE
+      'DELETE
+        FROM ' || table_copy || ' AS r
+        WHERE r.' || quote_ident( id_field ) || ' = ANY ( ARRAY( SELECT id FROM ' || table_updates || ' ) )';
 
-	EXECUTE
-	  'INSERT INTO ' || table_copy || '
-	    SELECT * FROM ' || table_original || ' AS r
-	    WHERE r.' || quote_ident( id_field ) || ' = ANY ( ARRAY( SELECT id FROM ' || table_updates || ' ) )';
+    EXECUTE
+      'INSERT INTO ' || table_copy || '
+        SELECT * FROM ' || table_original || ' AS r
+        WHERE r.' || quote_ident( id_field ) || ' = ANY ( ARRAY( SELECT id FROM ' || table_updates || ' ) )';
+
+END; $$ LANGUAGE plpgsql;
+
+---
+--- Update table by id
+---
+--- Uses just the (auto increment) id as criterion for updates
+--- Does not delete removed rows
+---
+
+CREATE OR REPLACE FUNCTION fdw.update_tables_by_index(
+    table_original text,
+    table_copy text,
+    id_field text DEFAULT 'id',
+    record_limit int DEFAULT NULL
+)
+RETURNS void AS $$
+DECLARE
+    sql text;
+    max_id integer DEFAULT 0;
+BEGIN
+
+    RAISE NOTICE 'Getting record ids for records to update from % to %.', table_original, table_copy;
+
+    EXECUTE 'SELECT MAX( ' || quote_ident( id_field ) || ' ) FROM ' || table_copy INTO max_id;
+    IF max_id IS NULL THEN max_id := 0; END IF;
+    RAISE NOTICE '  Max id: %', max_id;
+
+    sql := '
+    INSERT INTO ' || table_copy || '
+        SELECT * FROM ' || table_original || ' AS t
+        WHERE ( t.' || quote_ident( id_field ) ||  ' > ' || quote_literal( max_id ) || ')';
+
+    IF record_limit IS NOT NULL THEN
+        sql := sql || ' LIMIT ' || record_limit;
+        RAISE NOTICE '  Limited to % records.', record_limit;
+    END IF;
+
+    EXECUTE sql;
 
 END; $$ LANGUAGE plpgsql;
