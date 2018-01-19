@@ -9,7 +9,7 @@ INSERT INTO fdw.updates
     FROM fdw.updated_tables AS u 
         WHERE u.active 
         AND u.record_type_code IS NOT NULL 
-        AND NOT u.by_id 
+        AND NOT u.by_index 
     GROUP BY record_type_code;
 
 --- Update the rows, using the record_metadata information
