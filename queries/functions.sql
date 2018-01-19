@@ -151,7 +151,7 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION fdw.mirror_schema(
     schema_from text DEFAULT 'sierra_view_fdw',
     schema_to text DEFAULT 'sierra_view',
-        server_name text DEFAULT 'sierra_server',
+    server_name text DEFAULT 'sierra_server',
     schema_original_name text DEFAULT 'sierra_view'
 )
 RETURNS void AS $$
