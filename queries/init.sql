@@ -2,7 +2,7 @@
 --- INIT FDW SERVER
 ---
 
-SELECT fdw.init( '[USERNAME]', '[PASSWORD]', '[SERVER]' );
+SELECT fdw.init( :'username', :'password', :'server' );
 
 ---
 --- CREATE UPDATE META TABLES
