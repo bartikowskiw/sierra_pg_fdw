@@ -55,16 +55,17 @@ BEGIN
     EXECUTE 'CREATE SERVER ' || quote_ident( server_name ) || '
       FOREIGN DATA WRAPPER postgres_fdw
       OPTIONS (
-    host ' || quote_literal( host ) || ',
-    dbname ' || quote_literal( db_name ) || ',
-    port ' || quote_literal( port ) || ')';
+        host ' || quote_literal( host ) || ',
+        dbname ' || quote_literal( db_name ) || ',
+        port ' || quote_literal( port ) || '
+      )';
 
     EXECUTE 'CREATE USER MAPPING FOR CURRENT_USER
       SERVER sierra_server
       OPTIONS (
-    user ' || quote_literal( username) || ',
-    password ' || quote_literal( password ) || '
-    )';
+        user ' || quote_literal( username) || ',
+        password ' || quote_literal( password ) || '
+      )';
 
     EXECUTE 'CREATE SCHEMA ' || quote_ident( local_schema_name );
 
@@ -179,6 +180,7 @@ CREATE OR REPLACE FUNCTION fdw.add_table(
     table_name text, 
     id_field text,
     record_type_code text DEFAULT NULL,
+    by_index bool DEFAULT FALSE,
     schema_original text DEFAULT 'sierra_view_fdw',
     schema_copy text DEFAULT 'sierra_view'
 )
@@ -188,19 +190,28 @@ BEGIN
     EXECUTE 'DELETE FROM fdw.updated_tables WHERE table_name = ' || quote_literal( table_name );
 
     IF record_type_code IS NULL THEN
-    EXECUTE 'INSERT INTO fdw.updated_tables ( table_name, id_field ) 
-        VALUES ( ' || quote_literal( table_name ) || ', ' || quote_literal( id_field ) || ' )';
+    EXECUTE 'INSERT INTO fdw.updated_tables ( table_name, id_field, by_index ) 
+        VALUES ( 
+            ' || quote_literal( table_name ) || ', 
+            ' || quote_literal( id_field ) || ', 
+            ' || quote_literal( by_index ) || ' 
+        )';
     ELSE
-        EXECUTE 'INSERT INTO fdw.updated_tables ( table_name, id_field, record_type_code ) 
-        VALUES ( ' || quote_literal( table_name ) || ', ' || quote_literal( id_field ) || ', ' || quote_literal( record_type_code ) || ' )';
+        EXECUTE 'INSERT INTO fdw.updated_tables ( table_name, id_field, by_index, record_type_code ) 
+        VALUES ( 
+            ' || quote_literal( table_name ) || ', 
+            ' || quote_literal( id_field ) || ', 
+            ' || quote_literal( by_index ) || ', 
+            ' || quote_literal( record_type_code ) || '
+        )';
     END IF;
 
     
 
     EXECUTE 'SELECT fdw.duplicate_table_structure(
-    ' || quote_literal( fdw.ftn( table_name, schema_original ) ) || ',
-    ' || quote_literal( fdw.ftn( table_name, schema_copy ) ) || ',
-    ' || quote_literal( id_field ) || '
+        ' || quote_literal( fdw.ftn( table_name, schema_original ) ) || ',
+        ' || quote_literal( fdw.ftn( table_name, schema_copy ) ) || ',
+        ' || quote_literal( id_field ) || '
     )';
 
 END; $$ LANGUAGE plpgsql;
@@ -302,7 +313,7 @@ END; $$ LANGUAGE plpgsql;
 --- Does not delete removed rows
 ---
 
-CREATE OR REPLACE FUNCTION fdw.update_tables_by_index(
+CREATE OR REPLACE FUNCTION fdw.update_table_by_index(
     table_original text,
     table_copy text,
     id_field text DEFAULT 'id',
@@ -315,7 +326,7 @@ DECLARE
     affected integer DEFAULT 0;
 BEGIN
 
-    RAISE NOTICE 'Updating % with data from %.', table_original, table_copy;
+    RAISE NOTICE 'Updating % with data from %.', table_copy, table_original;
 
     EXECUTE 'SELECT MAX( ' || quote_ident( id_field ) || ' ) FROM ' || table_copy INTO max_id;
     IF max_id IS NULL THEN max_id := 0; END IF;

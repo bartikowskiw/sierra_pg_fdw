@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS fdw.updated_tables (
   table_name character varying(128),
   id_field character varying(128) DEFAULT 'id',
   record_type_code char DEFAULT NULL,
+  by_index bool DEFAULT FALSE,
   active bool DEFAULT TRUE
 );
 
@@ -44,4 +45,6 @@ SELECT fdw.add_table( 'item_record_property', 'item_record_id', 'i' );
 
 SELECT fdw.add_table( 'varfield', 'record_id' );
 SELECT fdw.add_table( 'record_metadata', 'id' );
+
+SELECT fdw.add_table( 'circ_trans', 'id', NULL, TRUE );
 
