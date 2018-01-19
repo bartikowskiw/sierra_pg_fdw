@@ -32,6 +32,8 @@ SELECT fdw.mirror_schema();
 --- DEFINE WHICH TABLES TO COPY
 ---
 
+/*
+
 SELECT fdw.add_table( 'bib_record', 'id', 'b' );
 SELECT fdw.add_table( 'bib_record_location', 'bib_record_id', 'b' );
 SELECT fdw.add_table( 'bib_record_property', 'bib_record_id', 'b' );
@@ -47,4 +49,6 @@ SELECT fdw.add_table( 'varfield', 'record_id' );
 SELECT fdw.add_table( 'record_metadata', 'id' );
 
 SELECT fdw.add_table( 'circ_trans', 'id', NULL, TRUE );
+
+*/
 
